@@ -1,0 +1,992 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "dev-apex-academy-adf"
+		},
+		"ls_asql_apex_academy_sql_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_asql_apex_academy_sql'"
+		},
+		"ls_blob_generic_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_blob_generic'"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_copy_store_clone_test')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy Orders Data",
+						"type": "Copy",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Wait1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'jdelarosa_Orders') \nTRUNCATE TABLE dbo.jdelarosa_Orders",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": true,
+							"logSettings": {
+								"enableCopyActivityLog": true,
+								"copyActivityLogSettings": {
+									"logLevel": "Warning",
+									"enableReliableLogging": false
+								},
+								"logLocationSettings": {
+									"linkedServiceName": {
+										"referenceName": "ls_blob_generic",
+										"type": "LinkedServiceReference"
+									},
+									"path": "apexgenericstorage/Log"
+								}
+							},
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Row ID",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "RowID",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "Order ID",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "OrderID",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Order Date",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "OrderDate",
+											"type": "DateTime",
+											"physicalType": "date"
+										}
+									},
+									{
+										"source": {
+											"name": "Ship Date",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "ShipDate",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Ship Mode",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "ShipMode",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Customer ID",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "CustomerID",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Segment",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Segment",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Country",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Country",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "City",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "City",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "State",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "State",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Postal Code",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "PostalCode",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "Region",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Region",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Product ID",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "ProductID",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Sales",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Sales",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 10
+										}
+									},
+									{
+										"source": {
+											"name": "Quantity",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Quantity",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "Discount",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Discount",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 2
+										}
+									},
+									{
+										"source": {
+											"name": "Profit",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Profit",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Price",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Price",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 3,
+											"precision": 10
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_excel",
+								"type": "DatasetReference",
+								"parameters": {
+									"DirectoryName": "apexgenericstorage",
+									"FileName": "Sample - Superstore-Updated.xls",
+									"TabName": "Orders"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_asql_apex_academy_db",
+								"type": "DatasetReference",
+								"parameters": {
+									"Schema_Name": "dbo",
+									"TableName": "jdelarosa_Orders"
+								}
+							}
+						]
+					},
+					{
+						"name": "Copy Products Data",
+						"type": "Copy",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Copy Orders Data",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'jdelarosa_Products') \nTRUNCATE TABLE dbo.jdelarosa_Products",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": true,
+							"logSettings": {
+								"enableCopyActivityLog": true,
+								"copyActivityLogSettings": {
+									"logLevel": "Warning",
+									"enableReliableLogging": false
+								},
+								"logLocationSettings": {
+									"linkedServiceName": {
+										"referenceName": "ls_blob_generic",
+										"type": "LinkedServiceReference"
+									},
+									"path": "apexgenericstorage/Log"
+								}
+							},
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Product ID",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "ProductID",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Category",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Category",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Sub-Category",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "SubCategory",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Product Name",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "ProductName",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Price",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Price",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 3,
+											"precision": 10
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_excel",
+								"type": "DatasetReference",
+								"parameters": {
+									"DirectoryName": "apexgenericstorage",
+									"FileName": "Sample - Superstore-Updated.xls",
+									"TabName": "Products"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_asql_apex_academy_db",
+								"type": "DatasetReference",
+								"parameters": {
+									"Schema_Name": "dbo",
+									"TableName": "jdelarosa_Products"
+								}
+							}
+						]
+					},
+					{
+						"name": "Reports",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Copy Products Data",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_Reports",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"OrdersData": {
+										"Schema_Name": "dbo",
+										"TableName": "jdelarosa_Orders"
+									},
+									"ProductsData": {
+										"Schema_Name": "dbo",
+										"TableName": "jdelarosa_Products"
+									},
+									"SalesCityReport": {
+										"DirectoryName": "apexgenericstorage",
+										"FileName": "SalesByCity.csv"
+									},
+									"Products": {
+										"DirectoryName": "apexgenericstorage",
+										"FileName": "ProductList.csv"
+									},
+									"ShipModeReport": {
+										"DirectoryName": "apexgenericstorage",
+										"FileName": "ShipModeReport.csv"
+									},
+									"BestCustomersReport": {
+										"DirectoryName": "apexgenericstorage",
+										"FileName": "BestCustomersReport.csv"
+									},
+									"BestProductsReport": {
+										"DirectoryName": "apexgenericstorage",
+										"FileName": "BestProductsReport.csv"
+									},
+									"OrdersReport": {
+										"DirectoryName": "apexgenericstorage",
+										"FileName": "OrdersList.csv"
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-05-26T22:37:41Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_excel')]",
+				"[concat(variables('factoryId'), '/datasets/ds_asql_apex_academy_db')]",
+				"[concat(variables('factoryId'), '/dataflows/df_Reports')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_blob_generic')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_Reports')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_blob_generic",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"DirectoryName": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().DirectoryName",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_blob_generic')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_asql_apex_academy_db')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_asql_apex_academy_sql",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Schema_Name": {
+						"type": "string"
+					},
+					"TableName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().Schema_Name",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().TableName",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_asql_apex_academy_sql')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_excel')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_blob_generic",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"DirectoryName": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					},
+					"TabName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": {
+						"value": "@dataset().TabName",
+						"type": "Expression"
+					},
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().DirectoryName",
+							"type": "Expression"
+						}
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_blob_generic')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_asql_apex_academy_sql')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('ls_asql_apex_academy_sql_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_blob_generic')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('ls_blob_generic_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_Reports')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_asql_apex_academy_db",
+								"type": "DatasetReference"
+							},
+							"name": "OrdersData",
+							"description": "Get Total Sales per City"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_asql_apex_academy_db",
+								"type": "DatasetReference"
+							},
+							"name": "ProductsData"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_Reports",
+								"type": "DatasetReference"
+							},
+							"name": "SalesCityReport"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_Reports",
+								"type": "DatasetReference"
+							},
+							"name": "Products"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_Reports",
+								"type": "DatasetReference"
+							},
+							"name": "ShipModeReport"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_Reports",
+								"type": "DatasetReference"
+							},
+							"name": "BestCustomersReport"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_Reports",
+								"type": "DatasetReference"
+							},
+							"name": "BestProductsReport"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_Reports",
+								"type": "DatasetReference"
+							},
+							"name": "OrdersReport"
+						}
+					],
+					"transformations": [
+						{
+							"name": "GetTotalSalesCity"
+						},
+						{
+							"name": "RemoveDuplicated"
+						},
+						{
+							"name": "ShipModeFilter"
+						},
+						{
+							"name": "GetMaxSales"
+						},
+						{
+							"name": "SortSales"
+						},
+						{
+							"name": "BestCustomers"
+						},
+						{
+							"name": "ConvertIntoRowsCustomers"
+						},
+						{
+							"name": "SortBestCustomers"
+						},
+						{
+							"name": "GetMaxQuantity"
+						},
+						{
+							"name": "BestProducts"
+						},
+						{
+							"name": "ConvertIntoRowsProducts"
+						},
+						{
+							"name": "SortBestProducts"
+						},
+						{
+							"name": "JoinWithProducts"
+						},
+						{
+							"name": "JoinOrdersProducts"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          RowID as integer,",
+						"          OrderID as string,",
+						"          OrderDate as date,",
+						"          ShipDate as string,",
+						"          ShipMode as string,",
+						"          CustomerID as string,",
+						"          Segment as string,",
+						"          Country as string,",
+						"          City as string,",
+						"          State as string,",
+						"          PostalCode as integer,",
+						"          Region as string,",
+						"          ProductID as string,",
+						"          Sales as decimal(10,2),",
+						"          Quantity as integer,",
+						"          Discount as decimal(2,2),",
+						"          Profit as string,",
+						"          Price as decimal(10,3)",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> OrdersData",
+						"source(output(",
+						"          ProductID as string,",
+						"          Category as string,",
+						"          SubCategory as string,",
+						"          ProductName as string,",
+						"          Price as decimal(10,3)",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> ProductsData",
+						"OrdersData aggregate(groupBy(City),",
+						"     TotalSalesbyCity = sum(Sales)) ~> GetTotalSalesCity",
+						"ProductsData aggregate(groupBy(ProductID,",
+						"          Category,",
+						"          SubCategory,",
+						"          ProductName,",
+						"          Price),",
+						"     TotalRows = count(ProductID)) ~> RemoveDuplicated",
+						"OrdersData filter(ShipMode == 'First Class' || ShipMode == 'Same Day') ~> ShipModeFilter",
+						"OrdersData aggregate(groupBy(CustomerID),",
+						"     Customer_Sales = sum(Sales)) ~> GetMaxSales",
+						"GetMaxSales sort(desc(Customer_Sales, true)) ~> SortSales",
+						"SortSales aggregate(Items = topN(CustomerID, toLong(Customer_Sales), 10)) ~> BestCustomers",
+						"BestCustomers foldDown(unroll(Items),",
+						"     mapColumn(",
+						"          CustomerID = Items.value,",
+						"          Customer_Sales = Items.count",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> ConvertIntoRowsCustomers",
+						"ConvertIntoRowsCustomers sort(desc(Customer_Sales, true)) ~> SortBestCustomers",
+						"JoinWithProducts aggregate(groupBy(OrdersData@ProductID,",
+						"          ProductName),",
+						"     Product_Quantity = sum(Quantity)) ~> GetMaxQuantity",
+						"GetMaxQuantity aggregate(Items = topN(ProductName, Product_Quantity, 10)) ~> BestProducts",
+						"BestProducts foldDown(unroll(Items),",
+						"     mapColumn(",
+						"          ProductName = Items.value,",
+						"          Product_Quantity = Items.count",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> ConvertIntoRowsProducts",
+						"ConvertIntoRowsProducts sort(desc(Product_Quantity, true)) ~> SortBestProducts",
+						"OrdersData, ProductsData join(OrdersData@ProductID == ProductsData@ProductID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinWithProducts",
+						"OrdersData, ProductsData join(OrdersData@ProductID == ProductsData@ProductID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinOrdersProducts",
+						"GetTotalSalesCity sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['SalesByCity.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> SalesCityReport",
+						"RemoveDuplicated sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['ProductList.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          ProductID,",
+						"          Category,",
+						"          SubCategory,",
+						"          ProductName,",
+						"          Price",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> Products",
+						"ShipModeFilter sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['ShipModeReport.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> ShipModeReport",
+						"SortBestCustomers sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['BestCustomersReport.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> BestCustomersReport",
+						"SortBestProducts sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['BestProductsReport.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          ProductName,",
+						"          Product_Quantity",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> BestProductsReport",
+						"JoinOrdersProducts sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['OrdersList.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          RowID,",
+						"          OrderID,",
+						"          OrderDate,",
+						"          ShipDate,",
+						"          ShipMode,",
+						"          CustomerID,",
+						"          Segment,",
+						"          Country,",
+						"          City,",
+						"          State,",
+						"          PostalCode,",
+						"          Region,",
+						"          ProductID = OrdersData@ProductID,",
+						"          Sales,",
+						"          Quantity,",
+						"          Discount,",
+						"          Profit,",
+						"          Price = OrdersData@Price,",
+						"          ProductName",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> OrdersReport"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_asql_apex_academy_db')]",
+				"[concat(variables('factoryId'), '/datasets/ds_Reports')]"
+			]
+		}
+	]
+}
