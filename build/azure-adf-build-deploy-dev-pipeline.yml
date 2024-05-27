@@ -91,7 +91,7 @@ stages:
              - task: AzureResourceManagerTemplateDeployment@3
                displayName: 'Deploying to Dev RG Task'
                inputs:
-                 deploymentScope: Resource Group
+                 deploymentScope: 'Resource Group'
                  azureResourceManagerConnection: '$(DevDeployDevOpsConnection)'
                  subscriptionId: '$(DevSubscriptionId)'
                  action: 'Create or Update Resource Group'
