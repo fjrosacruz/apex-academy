@@ -19,7 +19,7 @@ variables:
     value: $(Pipeline.Workspace)/$(CommonPublishArmTemplateName)
 
 stages:
-- stage: Build_Adf_Arm:Stage
+- stage: Build_Adf_Arm_Stage
   jobs:
     - job: Build_Adf_Arm_Template
       displayName: 'ADF - ARM - Template'
@@ -62,4 +62,8 @@ stages:
 
       # Publish the Artifact
       - task: PublishPipelineArtifact@1
-        displayName: 
+        displayName: 'Publish ARM Template'
+        inputs:
+          targetPath: '$(Build.Repository.LocalPath)/build/$(CommonPublishArmTemplateName)'
+          artifact: '$(CommonPublishArmTemplateName)'
+          publishLocation: 'pipeline'
