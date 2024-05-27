@@ -67,3 +67,38 @@ stages:
           targetPath: '$(Build.Repository.LocalPath)/build/$(CommonPublishArmTemplateName)'
           artifact: '$(CommonPublishArmTemplateName)'
           publishLocation: 'pipeline'
+
+- stage: Deploy_Dev_Stage
+  displayName: Deploy Dev Stage
+  dependsOn: Build_Adf_Arm_Stage
+  jobs:
+    - deployment: Deploy_Dev
+      displayName: 'Deployment - DEV'
+      environment: DEV
+      strategy:
+       runOnce:
+         deploy:
+           steps:
+             - task: DownloadPipelineArtifact@2
+               displayName: Download Build Artifacts - ADF ARM Templates
+               inputs:
+                 artifactName: '$(CommonPublishArmTemplateName)'
+                 targetPath: '$(WorkspaceArmTemplateDirectory)'
+             - script: dir
+               displayName: List files in Workspace
+               workingDirectory: '$(WorkspaceArmTemplateDirectory)'
+
+             - task: AzureResourceManagerTemplateDeployment@3
+               displayName: 'Deploying to Dev RG Task'
+               inputs:
+                 deploymentScope: Resource Group
+                 azureResourceManagerConnection: '$(DevDeployDevOpsConnection)'
+                 subscriptionId: '$(DevSubscriptionId)'
+                 action: 'Create or Update Resource Group'
+                 resourceGroupName: '$(DevAdfRgName)'
+                 location: '$(DevAdfLocation)'
+                 templateLocation: 'Linked artifact'
+                 csmFile: '$(WorkspaceArmTemplateDirectory)/ARMTemplateForFactory.json'
+                 csmParametersFile: '$(WorkspaceArmTemplateDirectory)/ARMTemplateParametersForFactory.json'
+                 overrideParameters: '-factoryName "$(DevAdfName)"'
+                 deploymentMode: Incremental
