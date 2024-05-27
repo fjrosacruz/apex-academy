@@ -1,6 +1,7 @@
 {
 	"name": "pl_copy_store_clone_test",
 	"properties": {
+		"description": "Copy and Data Flow ",
 		"activities": [
 			{
 				"name": "Copy Orders Data",
