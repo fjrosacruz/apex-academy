@@ -22,4 +22,3 @@ variables:
 stages:
 - stage: Build_Adf_Arm:Stage
   jobs:
-    #- 
