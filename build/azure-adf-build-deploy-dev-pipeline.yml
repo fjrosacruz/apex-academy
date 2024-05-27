@@ -1,0 +1,25 @@
+# Pipeline Name: ADF-Build-Deploy-Dev-Pipeline
+# YAML File: azure-adf-build-deploy-dev-pipeline.yml
+# Description: Build ADF dev and Deploy to Dev ADF Live Mode.
+# https://aka.ms/yaml
+
+trigger:
+# - main
+- none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: Adf-config
+
+  - name: BuildAdfResourceId
+    value: /subscriptions/$(DevSubscriptionId)/resourceGroups/$(DevAdfRgName)/providers/Microsoft.DataFactory/factories/$(DevAdfName)
+
+  - name: WorkspaceArmTemplateDirectory
+    value: $(Pipeline.Workspace)/$(CommonPublishArmTemplateName)
+
+stages:
+- stage: Build_Adf_Arm:Stage
+  jobs:
+    #- 
