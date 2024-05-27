@@ -46,7 +46,7 @@ stages:
 
       # ADF - Validates all on adf - code.
       - task: Npm@1
-        displayName: 'Validate Source code'
+        displayName: 'Validate Source Code'
         inputs:
           command: 'custom'
           workingDir: '$(Build.Repository.LocalPath)/build/'
