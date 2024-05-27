@@ -1,7 +1,6 @@
 # Pipeline Name: ADF-Build-Deploy-Dev-Pipeline
 # YAML File: azure-adf-build-deploy-dev-pipeline.yml
-# Description: Build ADF dev and Deploy to Dev ADF Live Mode.
-# https://aka.ms/yaml
+# Description: Build ADF dev and Deploy to Dev ADF Live Mode. # https://aka.ms/yaml
 
 trigger:
 # - main
@@ -22,3 +21,45 @@ variables:
 stages:
 - stage: Build_Adf_Arm:Stage
   jobs:
+    - job: Build_Adf_Arm_Template
+      displayName: 'ADF - ARM - Template'
+      workspace:
+       clean: all
+      steps:
+      - checkout: self
+        displayName: 'Checkout ADF Repo'
+        clean: true
+        path: $(DevAdfName)
+
+    # Installs node and the npm packages saved in your package.json file in the build
+      - task: NodeTool@0
+        displayName: 'Install Node.js' 
+        inputs: 
+          versionSpec: '10.x'
+
+      - task: Npm@1
+        displayName: 'Install npm package' 
+        inputs: 
+          command: 'install'
+          workingDir: '$(Build.Repository.LocalPath)/build/'
+          verbose: true
+
+      # ADF - Validates all on adf - code.
+      - task: Npm@1
+        displayName: 'Validate Source code'
+        inputs:
+          command: 'custom'
+          workingDir: '$(Build.Repository.LocalPath)/build/'
+          customCommand: 'run build validate $(Build.Repository.LocalPath)/adf-code $(BuildAdfResourceId)'
+          
+      # ADF - Generate ARM Template
+      - task: Npm@1
+        displayName:  'Generate ARM Template'
+        inputs:
+          command: 'custom'
+          workingDir: '$(Build.Repository.LocalPath)/build/'
+          customCommand: 'run build export $(Build.Repository.LocalPath)/adf-code $(BuildAdfResourceId) "$(CommonPublishArmTemplateName)"'
+
+      # Publish the Artifact
+      - task: PublishPipelineArtifact@1
+        displayName: 
