@@ -94,7 +94,7 @@ stages:
                  deploymentScope: 'Resource Group'
                  azureResourceManagerConnection: '$(DevDeployDevOpsConnection)'
                  subscriptionId: '$(DevSubscriptionId)'
-                 action: 'Create or Update Resource Group'
+                 action: 'Create Or Update Resource Group'
                  resourceGroupName: '$(DevAdfRgName)'
                  location: '$(DevAdfLocation)'
                  templateLocation: 'Linked artifact'
