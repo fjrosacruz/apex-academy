@@ -1,0 +1,46 @@
+# Pipeline Name: ADF-Prod-Pipeline
+# YAML File: azure-adf-build-deploy-prod-pipeline.yml
+# Description: Deploy to Production ADF Live Mode.
+# https://aka.ms/yaml
+
+# trigger:
+# - main
+
+resources:
+ pipelines:
+   - pipeline: 'ADF-Build-Dev-Resource'
+     project: adf-apex-academy
+     source: 'ADF-Build-Deploy-Dev-Pipeline'
+     trigger:
+      stages:
+        - Deploy_Dev_Stage
+      tags:
+        - Production
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: Adf-config
+  - name: WorkspaceArmTemplateDirectory
+    value: $(Pipeline.Workspace)/ADF-Build-Dev-Resource/$(CommonPublishArmTemplateName)
+
+stages:
+- stage: Deploy_Prd_Stage
+  displayName: Deploy Prd Stage
+  jobs:
+    - deployment: Deploy_Prd
+      displayName: 'Deployment - PRD'
+      environment: PROD
+      strategy:
+       runOnce:
+         deploy:
+           steps:
+            - download: 'ADF-Build-Dev-Resource'
+            - script: dir
+              displayName: List files in Workspace
+              workingDirectory: '$(WorkspaceArmTemplateDirectory)'
+            - task: AzureResourceManagerTemplateDeployment@3
+              displayName: 'Deploying to Production RG Task'
+              inputs:
+                deploymentScope
