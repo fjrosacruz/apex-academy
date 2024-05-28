@@ -43,4 +43,14 @@ stages:
             - task: AzureResourceManagerTemplateDeployment@3
               displayName: 'Deploying to Production RG Task'
               inputs:
-                deploymentScope
+                 deploymentScope: 'Resource Group'
+                 azureResourceManagerConnection: '$(ProdDeployDevOpsConnection)'
+                 subscriptionId: '$(ProdSubscriptionId)'
+                 action: 'Create Or Update Resource Group'
+                 resourceGroupName: '$(ProdAdfRgName)'
+                 location: '$(ProdAdfLocation)'
+                 templateLocation: 'Linked artifact'
+                 csmFile: '$(WorkspaceArmTemplateDirectory)/ARMTemplateForFactory.json'
+                 csmParametersFile: '$(WorkspaceArmTemplateDirectory)/ARMTemplateParametersForFactory.json'
+                 overrideParameters: '-factoryName "$(ProdAdfName)"'
+                 deploymentMode: Incremental
