@@ -102,3 +102,38 @@ stages:
                  csmParametersFile: '$(WorkspaceArmTemplateDirectory)/ARMTemplateParametersForFactory.json'
                  overrideParameters: '-factoryName "$(DevAdfName)"'
                  deploymentMode: Incremental
+
+- stage: Deploy_Test_Stage
+  displayName: Deploy Test Stage
+  dependsOn: Deploy_Dev_Stage
+  jobs:
+    - deployment: Deploy_Test
+      displayName: 'Deployment - TEST'
+      environment: TEST
+      strategy:
+       runOnce:
+         deploy:
+           steps:
+             - task: DownloadPipelineArtifact@2
+               displayName: Download Build Artifacts - ADF ARM Templates
+               inputs:
+                 artifactName: '$(CommonPublishArmTemplateName)'
+                 targetPath: '$(WorkspaceArmTemplateDirectory)'
+             - script: dir
+               displayName: List files in Workspace
+               workingDirectory: '$(WorkspaceArmTemplateDirectory)'
+
+             - task: AzureResourceManagerTemplateDeployment@3
+               displayName: 'Deploying to Test RG Task'
+               inputs:
+                 deploymentScope: 'Resource Group'
+                 azureResourceManagerConnection: '$(TestDeployDevOpsConnection)'
+                 subscriptionId: '$(TestSubscriptionId)'
+                 action: 'Create Or Update Resource Group'
+                 resourceGroupName: '$(TestAdfRgName)'
+                 location: '$(TestAdfLocation)'
+                 templateLocation: 'Linked artifact'
+                 csmFile: '$(WorkspaceArmTemplateDirectory)/ARMTemplateForFactory.json'
+                 csmParametersFile: '$(WorkspaceArmTemplateDirectory)/ARMTemplateParametersForFactory.json'
+                 overrideParameters: '-factoryName "$(TestAdfName)"'
+                 deploymentMode: Incremental
