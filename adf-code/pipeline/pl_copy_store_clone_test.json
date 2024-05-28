@@ -6,8 +6,6 @@
 			{
 				"name": "Copy Orders Data",
 				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Wait1",
@@ -314,8 +312,6 @@
 			{
 				"name": "Copy Products Data",
 				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Copy Orders Data",
