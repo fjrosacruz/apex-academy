@@ -26,11 +26,11 @@ variables:
     value: $(Pipeline.Workspace)/ADF-Build-Dev-Resource/$(CommonPublishArmTemplateName)
 
 stages:
-- stage: Deploy_Prd_Stage
-  displayName: Deploy Prd Stage
+- stage: Deploy_Prod_Stage
+  displayName: Deploy Prod Stage
   jobs:
-    - deployment: Deploy_Prd
-      displayName: 'Deployment - PRD'
+    - deployment: Deploy_Prod
+      displayName: 'Deployment - PROD'
       environment: PROD
       strategy:
        runOnce:
